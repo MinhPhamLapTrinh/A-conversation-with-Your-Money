@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     
     APP_ENV: str = "development"
     
+    SECRET_KEY: str
     class Config:
         # Path to the .env file
         env_file = ".env.development"
