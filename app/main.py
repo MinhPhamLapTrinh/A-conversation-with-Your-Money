@@ -4,6 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.db.db import init_db
 from app.config import settings
+from app.routes import auth
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -15,10 +17,13 @@ async def lifespan(app: FastAPI):
         print(f"An error occurred while initializing the database: {e}")
     yield
 
-app = FastAPI(title="A conversation with your Money", 
-              description="Understand why you spend, not HOW MUCH", 
-              version="1.0.0",
-              lifespan=lifespan)
+
+app = FastAPI(
+    title="A conversation with your Money",
+    description="Understand why you spend, not HOW MUCH",
+    version="1.0.0",
+    lifespan=lifespan,
+)
 
 # Add CORS middleware
 app.add_middleware(
@@ -29,3 +34,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Register API route
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
+
+# Root endpoint for health checks or basic info
+@app.get("/")
+async def root():
+    return {"message": "Welcome to A conversation with Your Money!"}
