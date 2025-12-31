@@ -13,7 +13,6 @@ class UserBase(SQLModel):
 class UserCreate(UserBase):
     password: str
 
-
 class UserRead(UserBase):
     user_id: UUID
     created_at: datetime

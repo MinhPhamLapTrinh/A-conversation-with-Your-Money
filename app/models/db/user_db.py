@@ -4,7 +4,7 @@ from uuid import UUID, uuid4
 from datetime import datetime, timezone
 
 
-class   User(UserBase, table=True):
+class User(UserBase, table=True):
     __tablename__ = "users"
     # Primary Key
     user_id: UUID = Field(default_factory=uuid4, primary_key=True)

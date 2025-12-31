@@ -1,0 +1,27 @@
+from sqlmodel import SQLModel, Field
+from datetime import datetime
+from uuid import UUID
+from typing import Optional, Literal
+
+
+class TransactionBase(SQLModel):
+    category_id: UUID = Field(index=True)
+    direction: Literal["in", "out"] = Field(index=True) 
+    occurred_at: datetime
+
+class TransactionCreate(TransactionBase):
+    category_name: str
+    category_type: Literal["expense", "income"]
+    amount: float
+    occurred_at: datetime
+    description: Optional[str]
+
+class TransactionRead(TransactionBase):
+    transaction_id: UUID
+    category_id: UUID
+    category_name: str
+    category_type: str
+    amount: float
+    direction: str
+    description: Optional[str]
+    occurred_at: datetime
