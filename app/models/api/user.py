@@ -21,3 +21,7 @@ class UserRead(UserBase):
 class UserResponse(SQLModel):
     status: str
     user: UserRead
+
+class UserLogin(SQLModel):
+    email: str
+    password: str

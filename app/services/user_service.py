@@ -45,6 +45,26 @@ async def get_user_by_username_from_db(username: str, session: SessionDep):
         return existing_username
     return None
 
+async def get_user_by_user_id_from_db(user_id: str, session: SessionDep):
+    """
+    Get user information by their input user_id
+    :param user_id: User user_id
+    :param session: A workspace for interacting with db
+    """
+    try:
+        user_id = session.exec(
+            select(User).where(User.user_id == user_id)
+        ).first()
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"An error occurred while retrieving user's user_id in db: {e}",
+        )
+    # Found the registered user_id
+    if user_id:
+        return user_id
+    return None
+
 async def create_user_in_db(
     username: str, user_email: str, password: str, session: SessionDep
 ):

@@ -2,7 +2,7 @@ from app.models.api.user import UserBase
 from sqlmodel import Field
 from uuid import UUID, uuid4
 from datetime import datetime, timezone
-from typing import Optional
+
 
 class   User(UserBase, table=True):
     __tablename__ = "users"
