@@ -19,10 +19,7 @@ async def get_user_by_email_from_db(email: str, session: SessionDep):
             status_code=400,
             detail=f"An error occurred while retrieving user's email in db: {e}",
         )
-    # Found the registered email
-    if existing_email:
-        return existing_email
-    return None
+    return existing_email
 
 
 async def get_user_by_username_from_db(username: str, session: SessionDep):
@@ -40,10 +37,8 @@ async def get_user_by_username_from_db(username: str, session: SessionDep):
             status_code=400,
             detail=f"An error occurred while retrieving user's username in db: {e}",
         )
-    # Found the registered username
-    if existing_username:
-        return existing_username
-    return None
+  
+    return existing_username
 
 async def get_user_by_user_id_from_db(user_id: str, session: SessionDep):
     """
@@ -60,10 +55,7 @@ async def get_user_by_user_id_from_db(user_id: str, session: SessionDep):
             status_code=400,
             detail=f"An error occurred while retrieving user's user_id in db: {e}",
         )
-    # Found the registered user_id
-    if user_id:
-        return user_id
-    return None
+    return user_id
 
 async def create_user_in_db(
     username: str, user_email: str, password: str, session: SessionDep

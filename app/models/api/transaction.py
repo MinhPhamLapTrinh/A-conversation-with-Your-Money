@@ -3,11 +3,8 @@ from datetime import datetime
 from uuid import UUID
 from typing import Optional, Literal
 
-
 class TransactionBase(SQLModel):
-    category_id: UUID = Field(index=True)
-    direction: Literal["in", "out"] = Field(index=True) 
-    occurred_at: datetime
+    occurred_at: datetime = Field(index=True) 
 
 class TransactionCreate(TransactionBase):
     category_name: str
@@ -19,9 +16,13 @@ class TransactionCreate(TransactionBase):
 class TransactionRead(TransactionBase):
     transaction_id: UUID
     category_id: UUID
-    category_name: str
-    category_type: str
     amount: float
     direction: str
     description: Optional[str]
     occurred_at: datetime
+    category_name: str
+    category_type: str
+
+class TransactionResponse(SQLModel):
+    status: str
+    transaction: TransactionRead

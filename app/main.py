@@ -1,10 +1,9 @@
-from typing import Union, Annotated
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.db.db import init_db
 from app.config import settings
-from app.routes import auth
+from app.routes import auth, transaction
 
 
 @asynccontextmanager
@@ -36,6 +35,7 @@ app.add_middleware(
 
 # Register API route
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
+app.include_router(transaction.router, prefix="/api/v1", tags=["Transaction"])
 
 # Root endpoint for health checks or basic info
 @app.get("/")
