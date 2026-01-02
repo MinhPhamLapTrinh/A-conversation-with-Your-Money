@@ -1,9 +1,13 @@
 from fastapi import APIRouter, HTTPException, Depends
-from app.models.api.transaction import TransactionCreate, TransactionResponse, TransactionRead
+from app.models.api.transaction import (
+    TransactionCreate,
+    TransactionResponse,
+    TransactionRead,
+)
 from app.db.session import SessionDep
 from app.utils.jwt_handler import jwt_required
 from app.services.category_service import get_category, add_category
-from app.services.transaction_service import add_transaction
+from app.services.transaction_service import add_transaction, get_list_transactions
 
 # Define router
 router = APIRouter()
@@ -65,7 +69,26 @@ async def create_transaction(
         description=transaction.description,
         occurred_at=transaction.occurred_at,
         category_name=category.name,
-        category_type=category.type
+        category_type=category.type,
     )
 
-    return {"status": "success", "transaction": transaction_read, "occurred_at": transaction.occurred_at}
+    return {"status": "success", "transaction": transaction_read}
+
+
+@router.get("/transactions", status_code=200)
+async def list_transactions(session: SessionDep, payload: dict = Depends(jwt_required)):
+    """
+    Allow users to retrieve the list of transactions that they made
+    :param payload: Decoded JWT containing user claims (validated via jwt_required)
+    :param session: A workspace for interacting with db
+    :return a successful message with the list of transactions stored in db
+    """
+    # Get user id from the payload
+    user_id = payload.get("sub")
+
+    transactions = await get_list_transactions(user_id=user_id, session=session)
+
+    if not transactions:
+        raise HTTPException(status_code=404, detail=f"List is empty!")
+
+    return {"status": "success", "transactions": transactions}
