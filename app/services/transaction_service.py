@@ -54,6 +54,7 @@ async def get_list_transactions(user_id: str, session: SessionDep):
     Retrieve a list of transactions
     :param user_id: A unique identifier for a user
     :param session: A workspace for interacting with db
+    :return a list of transactions
     """
 
     try:
@@ -77,6 +78,7 @@ async def get_transaction_by_id(transaction_id: str, user_id: str, session: Sess
     :param transaction_id: Transaction ID
     :param user_id: A unique identifier for a user
     :param session: A workspace for interacting with db
+    :return a transaction by its id
     """
 
     try:
@@ -92,3 +94,28 @@ async def get_transaction_by_id(transaction_id: str, user_id: str, session: Sess
         )
 
     return transaction
+
+
+async def remove_transaction(transaction_id: str, user_id: str, session: SessionDep):
+    """
+    Remove a transaction by ID
+    :param transaction_id: Transaction ID
+    :param user_id: A unique identifier for a user
+    :param session: A workspace for interacting with db
+    :return a transaction is removed from db
+    """
+
+    try:
+        transaction = session.exec(
+            select(Transaction)
+            .where(Transaction.user_id == user_id)
+            .where(Transaction.transaction_id == transaction_id)
+        ).first()
+
+        session.delete(transaction)
+        session.commit()
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"An error while removing the {transaction_id} transaction: {e}",
+        )

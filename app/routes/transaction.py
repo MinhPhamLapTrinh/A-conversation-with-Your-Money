@@ -11,6 +11,7 @@ from app.services.transaction_service import (
     add_transaction,
     get_list_transactions,
     get_transaction_by_id,
+    remove_transaction
 )
 
 # Define router
@@ -134,6 +135,9 @@ async def get_transaction(
     transaction = await get_transaction_by_id(
         transaction_id=str(id), user_id=user_id, session=session
     )
+    
+    if not transaction:
+        raise HTTPException(status_code=404, detail=f"There is no {id} transaction")
 
     # Retrieve category details
     category = await get_category_by_id(
@@ -158,3 +162,30 @@ async def get_transaction(
         },
     }
 
+
+@router.delete("/transaction/{id}", status_code=200)
+async def delete_transaction(
+    id: str, session: SessionDep, payload: dict = Depends(jwt_required)
+):
+    """
+    Allow users to remove a transaction
+    :param id: Transaction ID
+    :param payload: Decoded JWT containing user claims (validated via jwt_required)
+    :param session: A workspace for interacting with db
+    """
+
+    # Get user id from the payload
+    user_id = payload.get("sub")
+
+    # Retrieve a transaction
+    transaction = await get_transaction_by_id(
+        transaction_id=str(id), user_id=user_id, session=session
+    )
+
+    if not transaction:
+        raise HTTPException(status_code=404, detail=f"There is no {id} transaction")
+    
+    # Remove a transaction
+    await remove_transaction(transaction_id=id, user_id=user_id, session=session)
+
+    return {"status": "success", "msg": "The transaction is removed"}
