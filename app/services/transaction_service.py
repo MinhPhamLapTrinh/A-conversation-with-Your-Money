@@ -69,3 +69,26 @@ async def get_list_transactions(user_id: str, session: SessionDep):
         )
 
     return transactions
+
+
+async def get_transaction_by_id(transaction_id: str, user_id: str, session: SessionDep):
+    """
+    Retrieve a transaction by ID
+    :param transaction_id: Transaction ID
+    :param user_id: A unique identifier for a user
+    :param session: A workspace for interacting with db
+    """
+
+    try:
+        transaction = session.exec(
+            select(Transaction)
+            .where(Transaction.user_id == user_id)
+            .where(Transaction.transaction_id == transaction_id)
+        ).first()
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"An error occurred while retrieving the {transaction_id} transaction: {e}",
+        )
+
+    return transaction

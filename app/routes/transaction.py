@@ -6,8 +6,12 @@ from app.models.api.transaction import (
 )
 from app.db.session import SessionDep
 from app.utils.jwt_handler import jwt_required
-from app.services.category_service import get_category, add_category
-from app.services.transaction_service import add_transaction, get_list_transactions
+from app.services.category_service import get_category, add_category, get_category_by_id
+from app.services.transaction_service import (
+    add_transaction,
+    get_list_transactions,
+    get_transaction_by_id,
+)
 
 # Define router
 router = APIRouter()
@@ -91,4 +95,66 @@ async def list_transactions(session: SessionDep, payload: dict = Depends(jwt_req
     if not transactions:
         raise HTTPException(status_code=404, detail=f"List is empty!")
 
-    return {"status": "success", "transactions": transactions}
+    # Format transactions with category information
+    transactions_list = []
+    for transaction in transactions:
+        category = await get_category_by_id(
+            id=transaction.category_id, user_id=user_id, session=session
+        )
+        transaction_dict = {
+            "transaction_id": str(transaction.transaction_id),
+            "category_id": str(transaction.category_id),
+            "amount": transaction.amount,
+            "direction": transaction.direction,
+            "description": transaction.description,
+            "occurred_at": transaction.occurred_at,
+            "created_at": transaction.created_at,
+            "category_name": category.name,
+            "category_type": category.type,
+        }
+        transactions_list.append(transaction_dict)
+
+    return {"status": "success", "transactions": transactions_list}
+
+
+@router.get("/transaction/{id}", status_code=200, response_model=TransactionResponse)
+async def get_transaction(
+    id: str, session: SessionDep, payload: dict = Depends(jwt_required)
+):
+    """
+    Allow users to retrieve the transaction the given ID
+    :param id: Transaction ID
+    :param payload: Decoded JWT containing user claims (validated via jwt_required)
+    :param session: A workspace for interacting with db
+    """
+
+    # Get user id from the payload
+    user_id = payload.get("sub")
+
+    transaction = await get_transaction_by_id(
+        transaction_id=str(id), user_id=user_id, session=session
+    )
+
+    # Retrieve category details
+    category = await get_category_by_id(
+        id=transaction.category_id, user_id=user_id, session=session
+    )
+
+    if not transaction:
+        raise HTTPException(status_code=404, detail=f"There is no {id} transaction")
+
+    return {
+        "status": "success",
+        "transaction": {
+            "transaction_id": str(transaction.transaction_id),
+            "category_id": str(transaction.category_id),
+            "amount": transaction.amount,
+            "direction": transaction.direction,
+            "description": transaction.description,
+            "occurred_at": transaction.occurred_at,
+            "created_at": transaction.created_at,
+            "category_name": category.name,
+            "category_type": category.type,
+        },
+    }
+
