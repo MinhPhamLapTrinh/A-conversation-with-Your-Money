@@ -3,6 +3,7 @@ from app.models.api.transaction import (
     TransactionCreate,
     TransactionResponse,
     TransactionRead,
+    TransactionUpdate,
 )
 from app.db.session import SessionDep
 from app.utils.jwt_handler import jwt_required
@@ -11,7 +12,8 @@ from app.services.transaction_service import (
     add_transaction,
     get_list_transactions,
     get_transaction_by_id,
-    remove_transaction
+    remove_transaction,
+    update_transaction_in_db,
 )
 
 # Define router
@@ -135,7 +137,7 @@ async def get_transaction(
     transaction = await get_transaction_by_id(
         transaction_id=str(id), user_id=user_id, session=session
     )
-    
+
     if not transaction:
         raise HTTPException(status_code=404, detail=f"There is no {id} transaction")
 
@@ -144,8 +146,8 @@ async def get_transaction(
         id=transaction.category_id, user_id=user_id, session=session
     )
 
-    if not transaction:
-        raise HTTPException(status_code=404, detail=f"There is no {id} transaction")
+    if not category:
+        raise HTTPException(status_code=404, detail=f"There is no available category")
 
     return {
         "status": "success",
@@ -184,8 +186,51 @@ async def delete_transaction(
 
     if not transaction:
         raise HTTPException(status_code=404, detail=f"There is no {id} transaction")
-    
+
     # Remove a transaction
     await remove_transaction(transaction_id=id, user_id=user_id, session=session)
 
     return {"status": "success", "msg": "The transaction is removed"}
+
+
+@router.patch("/transaction/{id}", status_code=200, response_model=TransactionResponse)
+async def update_transaction(
+    id: str,
+    data: TransactionUpdate,
+    session: SessionDep,
+    payload: dict = Depends(jwt_required),
+):
+    """
+    Allow users to update their transaction
+    :param id: Transaction ID
+    :param data: New updated data
+    :param payload: Decoded JWT containing user claims (validated via jwt_required)
+    :param session: A workspace for interacting with db
+    """
+
+    # Get user id from the payload
+    user_id = payload.get("sub")
+
+    transaction = await update_transaction_in_db(
+        transaction_id=id, user_id=user_id, data=data, session=session
+    )
+
+    # Retrieve category details
+    category = await get_category_by_id(
+        id=transaction.category_id, user_id=user_id, session=session
+    )
+
+    return {
+        "status": "success",
+        "transaction": {
+            "transaction_id": str(transaction.transaction_id),
+            "category_id": str(transaction.category_id),
+            "amount": transaction.amount,
+            "direction": transaction.direction,
+            "description": transaction.description,
+            "occurred_at": transaction.occurred_at,
+            "created_at": transaction.created_at,
+            "category_name": category.name,
+            "category_type": category.type,
+        },
+    }

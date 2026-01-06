@@ -11,7 +11,7 @@ class TransactionCreate(TransactionBase):
     category_type: Literal["expense", "income"]
     amount: float
     occurred_at: datetime
-    description: Optional[str]
+    description: Optional[str] = None
 
 class TransactionRead(TransactionBase):
     transaction_id: UUID
@@ -26,3 +26,13 @@ class TransactionRead(TransactionBase):
 class TransactionResponse(SQLModel):
     status: str
     transaction: TransactionRead
+
+
+class TransactionUpdate(SQLModel):
+    amount: Optional[float] = None
+    description: Optional[str] = None
+    occurred_at: Optional[datetime] = None
+
+    category_name: Optional[str] = None
+    category_type: Optional[Literal["income", "expense"]] = None
+    
