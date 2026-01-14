@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.db.db import init_db
 from app.config import settings
-from app.routes import auth, transaction
+from app.routes import auth, transaction, finance
 
 
 @asynccontextmanager
@@ -36,6 +36,7 @@ app.add_middleware(
 # Register API route
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
 app.include_router(transaction.router, prefix="/api/v1", tags=["Transaction"])
+app.include_router(finance.router, prefix="/api/v1/finance", tags=["Finance"])
 
 # Root endpoint for health checks or basic info
 @app.get("/")
