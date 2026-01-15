@@ -9,6 +9,8 @@ class Settings(BaseSettings):
 
     SECRET_KEY: str
 
+    MODEL: str
+
     class Config:
         # Path to the .env file
         env_file = ".env.development"
