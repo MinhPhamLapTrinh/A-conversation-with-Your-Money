@@ -16,19 +16,6 @@ def verify_password(plain_password, hashed_password):
 
 
 def get_password_hash(password: str):
-    # Check password length in bytes
-    password_bytes = len(password.encode('utf-8'))
-    print(f"DEBUG - Password length: {len(password)} chars, {password_bytes} bytes")
-    print(f"DEBUG - Password preview: {password[:50]}...")  # Show first 50 chars
-    
-    if password_bytes > 72:
-        raise ValueError(
-            f"Password is too long ({password_bytes} bytes). "
-            f"Bcrypt only supports passwords up to 72 bytes. "
-            f"This suggests the password is already hashed or encoded. "
-            f"Send only plain text passwords from the frontend."
-        )
-    
     return pwd_context.hash(password)
 
 
@@ -49,7 +36,7 @@ def create_backend_token(id: str, expires_in: int = 3600):
     return {"token": token, "issued_at": issued, "exp": expiration}
 
 
-def jwt_required(authorization: str = Header(None)):
+def jwt_required(authorization: str = Header(None, alias="Authorization")):
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(
             status_code=401, detail="Authorization token missing or invalid"
