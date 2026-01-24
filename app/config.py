@@ -11,6 +11,7 @@ class Settings(BaseSettings):
 
     MODEL: str
 
+    OLLAMA_HOST: str
     class Config:
         # Path to the .env file
         env_file = ".env.development"
