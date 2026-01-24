@@ -31,7 +31,7 @@ cd Personal-Finance-Tracking-System
 ```bash
 touch .env.development
 ```
-You can setup the file as same as the following one:
+You can set up the file in the same way as the following one:
 ```bash
 POSTGRES_URL=postgresql://postgres:postgres@postgres:5432/expense_tracker
 SECRET_KEY="your-secret-key"
