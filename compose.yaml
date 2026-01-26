@@ -22,7 +22,7 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   ollama:
-    image: ollama/ollama:rocm
+    image: ollama/ollama:latest
     container_name: ollama
     ports:
       - "11434:11434"
